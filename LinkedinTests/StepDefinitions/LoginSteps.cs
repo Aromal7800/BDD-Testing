@@ -6,23 +6,26 @@ using System;
 using TechTalk.SpecFlow;
 
 namespace LinkedinTests.StepDefinitions
+
 {
     [Binding]
-    public class LoginSteps
+    public class LoginStepDefinitions
     {
         public static IWebDriver? driver;
         private IWebElement? passwordInput;
 
 
         [BeforeFeature]
-        public static void InitializeBrowser()
+        public static void IntializeBrowser()
         {
             driver = new ChromeDriver();
+
+
         }
-        [BeforeScenario]
-        public static void LoadURL()
+        [Given(@"User will be on the login page")]
+        public void GivenUserWillBeOnTheLoginPage()
         {
-            driver.Url = "https://www.linkedin.com";
+            driver.Url = "https://linkedin.com";
         }
 
         [AfterFeature]
@@ -31,82 +34,82 @@ namespace LinkedinTests.StepDefinitions
             driver?.Quit();
         }
 
-        [When(@"User will enter username")]
-        public void WhenUserWillEnterUsername()
+        [When(@"User will enter username '(.*)'")]
+        public void WhenUserWillEnterUsername(string un)
         {
-            DefaultWait<IWebDriver?> fluentWait = new DefaultWait<IWebDriver?>(driver);
-            fluentWait.Timeout = TimeSpan.FromSeconds(10);
-            fluentWait.PollingInterval = TimeSpan.FromMilliseconds(100);
-            fluentWait.IgnoreExceptionTypes(typeof(NoSuchElementException));
-            fluentWait.Message = "Element not found";
-
-            IWebElement emailInput = fluentWait.Until(d => d.FindElement(By.Id("session_key")));
-            emailInput.SendKeys("abc@gmail.com");
+            DefaultWait<IWebDriver?> fluentwait = new DefaultWait<IWebDriver?>(driver);
+            fluentwait.Timeout = TimeSpan.FromSeconds(20);
+            fluentwait.PollingInterval = TimeSpan.FromMilliseconds(100);
+            fluentwait.IgnoreExceptionTypes(typeof(NoSuchElementException));
+            fluentwait.Message = "Element not found!!!";
+            IWebElement? emailInput = fluentwait.Until(driv => driv?.FindElement(By.Id("session_key")));
+            emailInput?.SendKeys(un);
         }
 
-        [When(@"User will enter password")]
-        public void WhenUserWillEnterPassword()
+        [When(@"User will enter password '(.*)'")]
+        public void WhenUserWillEnterPassword(string pwd)
         {
-            DefaultWait<IWebDriver?> fluentWait = new DefaultWait<IWebDriver?>(driver);
-            fluentWait.Timeout = TimeSpan.FromSeconds(10);
-            fluentWait.PollingInterval = TimeSpan.FromMilliseconds(100);
-            fluentWait.IgnoreExceptionTypes(typeof(NoSuchElementException));
-            fluentWait.Message = "Element not found";
+            DefaultWait<IWebDriver?> fluentwait = new DefaultWait<IWebDriver?>(driver);
+            fluentwait.Timeout = TimeSpan.FromSeconds(20);
+            fluentwait.PollingInterval = TimeSpan.FromMilliseconds(100);
+            fluentwait.IgnoreExceptionTypes(typeof(NoSuchElementException));
+            fluentwait.Message = "Element not found!!!";
+            passwordInput = fluentwait.Until(driv => driv?.FindElement(By.Id("session_password")));
+            passwordInput?.SendKeys(pwd);
+            Console.WriteLine(passwordInput.GetAttribute("value"));
 
-            passwordInput = fluentWait.Until(d => d.FindElement(By.Id("session_password")));
-            passwordInput.SendKeys("12345");
         }
 
         [When(@"User will click on login button")]
         public void WhenUserWillClickOnLoginButton()
         {
             IJavaScriptExecutor? js = (IJavaScriptExecutor?)driver;
-            js?.ExecuteScript("arguments[0].scrollIntoView(true);", driver?.FindElement(By.XPath("//button[@type='submit']")));
-
+            js?.ExecuteScript("arguments[0].scrollIntoView(true);",
+                driver?.FindElement(By.XPath("//button[@type='submit']")));
             Thread.Sleep(5000);
-            js?.ExecuteScript("arguments[0].click();", driver?.FindElement(By.XPath("//button[@type='submit']")));
+            js?.ExecuteScript("arguments[0].click();",
+               driver?.FindElement(By.XPath("//button[@type='submit']")));
         }
 
-        [Then(@"User will be redirected to home page")]
-        public void ThenUserWillBeRedirectedToHomePage()
+        [Then(@"User will redirect to Homepage")]
+        public void ThenUserWillRedirectToHomepage()
         {
             Assert.That(driver.Title.Contains("Log In"));
         }
-
-        [Then(@"Error message for password length should be thrown")]
-        public void ThenErrorMessageForPasswordLengthShouldBeThrown()
+        [Then(@"Error message for password length should be throw")]
+        public void ThenErrorMessageForPasswordLengthShouldBeThrow()
         {
+
             IWebElement? alertPara = driver?.FindElement(By.XPath("//p[@for='session_password']"));
             string? alertText = alertPara?.Text;
             Assert.That(alertText.Contains("password"));
         }
-
-        [When(@"User will click on show button in the password text box")]
-        public void WhenUserWillClickOnShowButtonInThePasswordTextBox()
+        [When(@"User will click on Show link in the password textbox")]
+        public void WhenUserWillClickOnShowLinkInThePasswordTextbox()
         {
             IWebElement showButton = driver.FindElement(By.XPath("//button[text()='Show']"));
             showButton.Click();
         }
 
-        [Then(@"The password characters should be shown")]
+        [Then(@"the password characters should be shown")]
         public void ThenThePasswordCharactersShouldBeShown()
         {
             Assert.That(passwordInput.GetAttribute("type").Equals("text"));
         }
 
-        [When(@"User will click on hide button in the password text box")]
-        public void WhenUserWillClickOnHideButtonInThePasswordTextBox()
+        [When(@"User will click on Hide link in the password textbox")]
+        public void WhenUserWillClickOnHideLinkInThePasswordTextbox()
         {
             IWebElement hideButton = driver.FindElement(By.XPath("//button[text()='Hide']"));
             hideButton.Click();
         }
 
-        [Then(@"The password characters should not be shown")]
-        public void ThenThePasswordCharactersShouldNotBeShown()
+        [Then(@"the password characters should go back to \*")]
+        public void ThenThePasswordCharactersShouldGoBackTo()
         {
             Assert.That(passwordInput.GetAttribute("type").Equals("password"));
         }
 
-
     }
 }
+
